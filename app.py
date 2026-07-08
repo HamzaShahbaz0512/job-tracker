@@ -30,7 +30,7 @@ class Job(db.Model):
 with app.app_context():
     db.create_all()
 
-app.config['JWT_SECRET_KEY']='1A2B3C4D'
+app.config['JWT_SECRET_KEY']='1'
 JWT=JWTManager(app)
 print("DB created successfully")
 
