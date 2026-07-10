@@ -187,6 +187,32 @@ def update_job(job_id):
     db.session.commit()
     return jsonify({"message":"Job updated successfully"}),200
         
+#delete job
+@app.route("/delete_job/<job_id>",methods=["DELETE"])
+@jwt_required()
+def delete_job(job_id):
+    job=Job.query.get(job_id)
+    if not job:
+        return jsonify({"message":"Job not found"}),404
+    db.session.delete(job)
+    db.session.commit()
+    return jsonify({"message":"Job deleted successfully"}),200
+
+#total jobs stats
+
+@app.route("/job_stats",methods=["GET"])
+@jwt_required()
+def job_stats():
+    total_jobs=Job.query.count()
+    applied_jobs=Job.query.filter_by(status="applied").count()
+    interview_jobs=Job.query.filter_by(status="interview").count()
+    offer_job=Job.query.filter_by(status="offer").count()
+    return jsonify({
+        "total_jobs":total_jobs,
+        "applied_jobs":applied_jobs,
+        "interview_jobs":interview_jobs,
+        "offer_job":offer_job
+    }),200
 
 if (__name__ == "__main__"):
     app.run(debug=True)
