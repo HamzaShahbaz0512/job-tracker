@@ -198,6 +198,7 @@ def delete_job(job_id):
     db.session.commit()
     return jsonify({"message":"Job deleted successfully"}),200
 
+
 #total jobs stats
 
 @app.route("/job_stats",methods=["GET"])
@@ -214,5 +215,23 @@ def job_stats():
         "offer_job":offer_job
     }),200
 
+#AI End point use to analyze job on the basis of description
+@app.route("/analyse_job", methods=["POST"])
+@jwt_required()
+def analyse_job():
+    data = request.get_json()
+    description = data.get("description")
+    
+    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    
+    message = client.messages.create(
+        model="claude-opus-4-6",
+        max_tokens=1024,
+        messages=[
+            {"role": "user", "content": f"Analyse this job description and tell me: 1) Top 5 skills required 2) How to tailor my application. Job description: {description}"}
+        ]
+    )
+
+    return jsonify({"analysis": message.content[0].text}), 200
 if (__name__ == "__main__"):
     app.run(debug=True)
