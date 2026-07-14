@@ -1,3 +1,4 @@
+import anthropic
 from flask import Flask,jsonify,request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
@@ -11,6 +12,7 @@ import os
 
 load_dotenv()
 api_key = os.getenv("JWT_SECRET_KEY")
+anthropic_key = os.getenv("CLAUDE_KEY")
 
 
 app=Flask(__name__)
@@ -215,6 +217,7 @@ def job_stats():
         "offer_job":offer_job
     }),200
 
+
 #AI End point use to analyze job on the basis of description
 @app.route("/analyse_job", methods=["POST"])
 @jwt_required()
@@ -222,7 +225,7 @@ def analyse_job():
     data = request.get_json()
     description = data.get("description")
     
-    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    client = anthropic.Anthropic(api_key=anthropic_key)
     
     message = client.messages.create(
         model="claude-opus-4-6",
