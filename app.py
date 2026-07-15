@@ -9,16 +9,18 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import jwt_required
 from dotenv import load_dotenv
 import os
+from flask_cors import CORS
 
 load_dotenv()
 api_key = os.getenv("JWT_SECRET_KEY")
 anthropic_key = os.getenv("CLAUDE_KEY")
 
 
+
 app=Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"]="sqlite:///job.db"
 db=SQLAlchemy(app)
-
+CORS(app)
 
 class Users(db.Model):
     id:Mapped[int]=db.Column(db.Integer,primary_key=True)
@@ -73,7 +75,7 @@ def login():
         return jsonify({"error":"Invalid email or password"}),401
     
     access_token=create_access_token(identity=user.email)
-    return jsonify({"Logged in Successfully ":access_token}),200
+    return jsonify({"access_token": access_token}), 200
     
 
 #create a new job
