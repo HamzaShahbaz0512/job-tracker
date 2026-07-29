@@ -3,4 +3,3 @@ __pycache__/
 instance/
 *.db
 .env
-exit()
