@@ -11,6 +11,23 @@ export default function App() {
   const [position, setPosition] = useState('')
   const [description ,setDescription] = useState('')
   const [status, setStatus] = useState('Applied')
+  const [jobs ,setJobs] = useState([])
+
+  function get_jobs(){
+    fetch('http://127.0.0.1:5000/get_jobs', {
+      method: 'GET',
+      headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+    })
+    .then (res=>res.json())
+    .then(data =>{
+      console.log(data)
+      setJobs(data)
+    })
+
+  }
 
   function login() {
     fetch('http://127.0.0.1:5000/login', {
@@ -76,6 +93,14 @@ function addJob() {
           <input placeholder="description" onChange={e => setDescription(e.target.value)}/>
           <br></br>
           <button onClick={addJob}>Add Job</button>
+
+          <button onClick={get_jobs}>Get Job</button>
+          
+{jobs.map((Job, index) => (
+  <div key={jobs.job_id || index}>
+    <p>{jobs.company} - {jobs.description} - {jobs.status}</p>
+  </div>
+))}
         </div>
       )}
     </div>
