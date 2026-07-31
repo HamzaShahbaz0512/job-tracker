@@ -20,6 +20,7 @@ anthropic_key = os.getenv("CLAUDE_KEY")
 app=Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"]="sqlite:///job.db"
 db=SQLAlchemy(app)
+CORS(app, resources={r"/*": {"origins": "*"}}, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 CORS(app)
 
 class Users(db.Model):
@@ -173,7 +174,6 @@ def my_jobs(user_id):
 @jwt_required()
 def update_job(job_id):
     data=request.get_json()
-    job=Job.query.get(id)
     
     job=Job.query.get(job_id)
     if not job:
