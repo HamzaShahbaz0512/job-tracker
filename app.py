@@ -206,12 +206,12 @@ def delete_job(job_id):
 #total jobs stats
 
 @app.route("/job_stats",methods=["GET"])
-@jwt_required()
+#@jwt_required()
 def job_stats():
     total_jobs=Job.query.count()
-    applied_jobs=Job.query.filter_by(status="applied").count()
-    interview_jobs=Job.query.filter_by(status="interview").count()
-    offer_job=Job.query.filter_by(status="offer").count()
+    applied_jobs=Job.query.filter_by(status="Applied").count()
+    interview_jobs=Job.query.filter_by(status="In progress").count()
+    offer_job=Job.query.filter_by(status="Offer received").count()
     return jsonify({
         "total_jobs":total_jobs,
         "applied_jobs":applied_jobs,

@@ -9,67 +9,7 @@ export default function App() {
   const [description ,setDescription] = useState('')
   const [status, setStatus] = useState('Applied')
   const [jobs ,setJobs] = useState([])
-
-
-      function get_jobs(){
-    fetch('http://127.0.0.1:5000/get_jobs', {
-      method: 'GET',
-      headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-    })
-    .then (res=>res.json())
-    .then(data =>{
-      console.log(data)
-      setJobs(data)
-    })
-
-  }
-  
-  function update_job(job_id){
-    fetch(`http://127.0.0.1:5000/update_job ${job_id}`, {
-      method: 'PUT',
-      headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-    })
-    .then (res=>res.json())
-    .then(data =>{
-      console.log(data)
-      setJobs(data)
-    })
-
-  }
-
-
-  function delete_job(job_id){
-    fetch(`http://127.0.0.1:5000/delete_job/${job_id}`, {
-      method: 'DELETE',
-      headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-        body: JSON.stringify({
-      job_id: Date.now(),
-      company,
-      position,
-      description,
-      status,
-      user_id: 1,
-      date_applied: new Date().toISOString().split('T')[0]
-      })
-    })
-    .then (res=>res.json())
-    .then(data =>{
-      setCompany('')
-      setPosition('')
-      setDescription('')
-    })
-
-  }
-
+  const [stats, setStats] = useState(null)
 
   function login() {
     fetch('http://127.0.0.1:5000/login', {
@@ -105,12 +45,76 @@ function addJob() {
   })
   .then(res => res.json())
   .then(data => {
-    console.log(data)
+    console.log("data: ", data)
     setCompany('')
     setPosition('')
     setDescription('')
   })
-}  // ONE return statement, decides what to show based on token
+}
+
+
+      function get_jobs(){
+    fetch('http://127.0.0.1:5000/get_jobs', {
+      method: 'GET',
+      headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+    })
+    .then (res=>res.json())
+    .then(data =>{
+      console.log(data)
+      setJobs(data)
+    })
+
+  }
+  
+  function update_job(job_id,newStatus){
+    fetch(`http://127.0.0.1:5000/update_job/${job_id}`, {
+      method: 'PUT',
+      headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ status: newStatus })
+    })
+
+    .then (res=>res.json())
+    .then(data =>{
+      console.log(data)
+      get_jobs()
+      get_stats()
+    })
+
+  }
+
+  function get_stats() {
+  fetch('http://127.0.0.1:5000/job_stats', {
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
+  .then(res => res.json())
+  .then(data => setStats(data))
+}
+
+  function delete_job(job_id){
+    fetch(`http://127.0.0.1:5000/delete_job/${job_id}`, {
+      method: 'DELETE',
+      headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+
+    })
+    .then (res=>res.json())
+    .then(data =>{
+      console.log(data)
+      get_jobs()
+    })
+
+  }
+
+
+// ONE return statement, decides what to show based on token
   return (
     <div>
       {!token && (
@@ -127,11 +131,11 @@ function addJob() {
       {token && (
         <div>
           <h3>Logged in successfully ✅</h3>
-          <input placeholder="Company" onChange={e => setCompany(e.target.value)}/>
+          <input placeholder="Company" value ={company}onChange={e => setCompany(e.target.value)}/>
           <br></br>
-          <input placeholder="Position" onChange={e => setPosition(e.target.value)}/>
+          <input placeholder="Position" value={position} onChange={e => setPosition(e.target.value)}/>
           <br></br>
-          <input placeholder="description" onChange={e => setDescription(e.target.value)}/>
+          <input placeholder="description" value={description} onChange={e => setDescription(e.target.value)}/>
           <br></br>
 
           <div style={{gap: '10px', display: 'flex', justifyContent:'center', margin:'10px'}}>
@@ -144,11 +148,28 @@ function addJob() {
             <div 
               key={Job.job_id || index }>
               <p>{Job.company} - {Job.description} - {Job.status} - {Job.job_id}</p>
-              <dropdown onClick={() => update_job(Job.job_id)}>Update</dropdown>
-              <button onClick={() => delete_job(Job.job_id)}>Delete</button>
+              <div style ={{gap: '10px', display: 'flex', justifyContent:'center', margin:'10px'}}>
+                <button onClick={() => delete_job(Job.job_id)}>Delete</button>
 
+                <select onChange={(e) => update_job(Job.job_id, e.target.value)} value={Job.status}>
+                  <option value="Applied">Applied</option>
+                  <option value="In progress">Interview in progress</option>
+                  <option value="Offer received">Offer received</option>
+                  <option value="Rejected">Rejected</option>
+                </select>
+              </div>
             </div>
           ))}
+          <button onClick={get_stats}>Load Stats</button>
+          {
+            stats && (
+            <div>
+              <p>Total: {stats.total_jobs}</p>
+              <p>Applied: {stats.applied_jobs}</p>
+              <p>Interview: {stats.interview_jobs}</p>
+              <p>Offer: {stats.offer_job}</p>
+            </div>
+)}
           
         </div>
       )}
