@@ -83,6 +83,10 @@ def login():
 @app.route("/create_job",methods=["POST"])
 @jwt_required()
 def create_job():
+    
+    current_user=get_jwt_identity()
+    user=Users.query.filter_by(email=current_user).first()
+    job=Job.query.filter_by(job_id=request.json.get("job_id")).first()
     data=request.get_json()
     job_id=data.get("job_id")
     company=data.get("company")

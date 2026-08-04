@@ -27,6 +27,7 @@ export default function App() {
     })
   }
 function addJob() {
+  
   fetch('http://127.0.0.1:5000/create_job', {
     method: 'POST',
     headers: { 
@@ -39,7 +40,7 @@ function addJob() {
       position,
       description,
       status,
-      user_id: 1,
+
       date_applied: new Date().toISOString().split('T')[0]
     })
   })
