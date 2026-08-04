@@ -87,13 +87,14 @@ def create_job():
     current_user=get_jwt_identity()
     user=Users.query.filter_by(email=current_user).first()
     job=Job.query.filter_by(job_id=request.json.get("job_id")).first()
+    
     data=request.get_json()
     job_id=data.get("job_id")
     company=data.get("company")
     description=data.get("description")
     position=data.get("position")
     status=data.get("status")
-    user_id=data.get("user_id")
+    user_id=user.id
     date_applied=data.get("date_applied")
 
     if job_id is None or company is None or description is None or position is None or status is None or user_id is None or date_applied is None:
