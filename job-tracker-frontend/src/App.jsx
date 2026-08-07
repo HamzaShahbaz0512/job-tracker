@@ -40,7 +40,6 @@ function addJob() {
       position,
       description,
       status,
-
       date_applied: new Date().toISOString().split('T')[0]
     })
   })
@@ -52,9 +51,16 @@ function addJob() {
     setDescription('')
   })
 }
+function getMyJobs() {
+  fetch(`http://127.0.0.1:5000/myJobs`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
+  .then(res => res.json())
+  .then(data => setJobs(data))
+  setJobs(data)
+}
 
-
-      function get_jobs(){
+function get_jobs(){
     fetch('http://127.0.0.1:5000/get_jobs', {
       method: 'GET',
       headers: {
@@ -89,7 +95,7 @@ function addJob() {
 
   }
 
-  function get_stats() {
+function get_stats() {
   fetch('http://127.0.0.1:5000/job_stats', {
     headers: { 'Authorization': `Bearer ${token}` }
   })
@@ -142,6 +148,7 @@ function addJob() {
           <div style={{gap: '10px', display: 'flex', justifyContent:'center', margin:'10px'}}>
             <button onClick={addJob}>Add Job</button>
             <button onClick={get_jobs}>Get Job</button>
+            <button onClick={getMyJobs}>Get My Jobs</button>
           </div>
           {
             jobs.map((Job,index) =>

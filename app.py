@@ -3,7 +3,7 @@ from flask import Flask,jsonify,request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, get_jwt_identity
 from flask_jwt_extended import create_access_token
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import jwt_required
@@ -156,8 +156,9 @@ def get_job(job_id):
 #Jobs assigned to specific user
 @app.route("/myJobs/<user_id>",methods=["GET"])
 @jwt_required()
-def my_jobs(user_id):
+def user_jobs(user_id):
     print("Hello")
+    
     jobs=Job.query.filter_by(user_id=user_id).all()
     
     if(jobs is None):
@@ -174,6 +175,25 @@ def my_jobs(user_id):
     } 
         for job in jobs]) 
     
+#return my jobs based on the user id from the token
+@app.route("/myJobs",methods=["GET"])
+@jwt_required()
+def my_jobs():
+    current_user = get_jwt_identity()
+    user = Users.query.filter_by(email=current_user).first()
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    jobs = Job.query.filter_by(user_id=user.id).all()
+    return jsonify([{
+        "job_id": job.job_id,
+        "company": job.company,
+        "description": job.description,
+        "position": job.position,
+        "status": job.status,
+        "user_id": job.user_id,
+        "date_applied": job.date_applied
+    } for job in jobs])
+
 #update job
 @app.route("/update_job/<job_id>",methods=["PUT"])
 @jwt_required()
